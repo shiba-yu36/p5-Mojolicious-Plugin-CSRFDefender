@@ -1,4 +1,4 @@
-Revision history for Mojolicious::Plugin::CSRFCheck
+Revision history for Mojolicious::Plugin::CSRFDefender
 
 0.0.1    Tue Feb  8 23:10:25 2011
         - Initial release

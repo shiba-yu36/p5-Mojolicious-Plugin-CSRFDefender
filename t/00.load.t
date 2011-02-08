@@ -1,7 +1,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-use_ok( 'Mojolicious::Plugin::CSRFCheck' );
+use_ok( 'Mojolicious::Plugin::CSRFDefender' );
 }
 
-diag( "Testing Mojolicious::Plugin::CSRFCheck $Mojolicious::Plugin::CSRFCheck::VERSION" );
+diag( "Testing Mojolicious::Plugin::CSRFDefender $Mojolicious::Plugin::CSRFCheck::VERSION" );

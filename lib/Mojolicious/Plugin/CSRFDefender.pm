@@ -1,4 +1,4 @@
-package Mojolicious::Plugin::CSRFCheck;
+package Mojolicious::Plugin::CSRFDefender;
 
 use strict;
 use warnings;
@@ -6,39 +6,78 @@ use Carp;
 
 use version; our $VERSION = qv('0.0.1');
 
-# Other recommended modules (uncomment to use):
-#  use IO::Prompt;
-#  use Perl6::Export;
-#  use Perl6::Slurp;
-#  use Perl6::Say;
+use base qw(Mojolicious::Plugin);
 
+use String::Random;
 
-# Module implementation here
+sub register {
+    my ($self, $app, $conf) = @_;
 
+    $app->hook(before_dispatch => sub {
+        my ($c) = @_;
+        unless ($self->validate_csrf($c)) {
+            $c->render(status => '403', text => 'forbidden');
+        };
+    });
 
-1; # Magic true value required at end of module
+    $app->hook(after_dispatch => sub {
+        my ($c) = @_;
+        my $token = $self->get_csrf_token($c);
+        my $body = $c->res->body;
+        $body =~ s{(<form\s*.*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
+        $c->res->body($body);
+    })
+}
+
+sub validate_csrf {
+    my ($self, $c) = @_;
+
+    if ($c->req->method eq 'POST') {
+        my $request_token = $c->req->param('csrf_token');
+        my $session_token = $c->session('csrf_token');
+        return 0 unless $request_token;
+        return 0 unless $session_token;
+        return 0 unless $request_token eq $session_token;
+    }
+
+    return 1;
+}
+
+sub get_csrf_token {
+    my ($self, $c) = @_;
+
+    my $token = $c->session('csrf_token');
+    return $token if $token;
+
+    $token = String::Random::random_regex('[a-zA-Z0-9_]{32}');
+    $c->session('csrf_token' => $token);
+    return $token;
+}
+
+1;
+
 __END__
 
 =head1 NAME
 
-Mojolicious::Plugin::CSRFCheck - [One line description of module's purpose here]
+Mojolicious::Plugin::CSRFDefender - [One line description of module's purpose here]
 
 
 =head1 VERSION
 
-This document describes Mojolicious::Plugin::CSRFCheck version 0.0.1
+This document describes Mojolicious::Plugin::CSRFDefender version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use Mojolicious::Plugin::CSRFCheck;
+    use Mojolicious::Plugin::CSRFDefender;
 
 =for author to fill in:
     Brief code example(s) here showing commonest usage(s).
     This section will be as far as many users bother reading
     so make it as educational and exeplary as possible.
-  
-  
+
+
 =head1 DESCRIPTION
 
 =for author to fill in:
@@ -46,7 +85,7 @@ This document describes Mojolicious::Plugin::CSRFCheck version 0.0.1
     Use subsections (=head2, =head3) as appropriate.
 
 
-=head1 INTERFACE 
+=head1 INTERFACE
 
 =for author to fill in:
     Write a separate section listing the public components of the modules
@@ -86,8 +125,8 @@ This document describes Mojolicious::Plugin::CSRFCheck version 0.0.1
     files, and the meaning of any environment variables or properties
     that can be set. These descriptions must also include details of any
     configuration language used.
-  
-Mojolicious::Plugin::CSRFCheck requires no configuration files or environment variables.
+
+Mojolicious::Plugin::CSRFDefender requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -127,7 +166,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-mojolicious-plugin-csrfcheck@rt.cpan.org>, or through the web interface at
+C<bug-mojolicious-plugin-csrfdefender@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
