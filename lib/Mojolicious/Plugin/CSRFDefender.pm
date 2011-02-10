@@ -13,7 +13,7 @@ use String::Random;
 sub register {
     my ($self, $app, $conf) = @_;
 
-    $app->hook(before_dispatch => sub {
+    $app->hook(after_static_dispatch => sub {
         my ($c) = @_;
         unless ($self->validate_csrf($c)) {
             $c->render(status => '403', text => 'forbidden');
@@ -24,9 +24,11 @@ sub register {
         my ($c) = @_;
         my $token = $self->get_csrf_token($c);
         my $body = $c->res->body;
-        $body =~ s{(<form\s*.*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
+        $body =~ s{(<form\s*.*method="POST".*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
         $c->res->body($body);
-    })
+    });
+
+    return $self;
 }
 
 sub validate_csrf {
