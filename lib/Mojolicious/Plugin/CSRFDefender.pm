@@ -93,7 +93,7 @@ For example, the application response body is
 
     <html>
       <body>
-        <form action="/get">
+        <form method="post" action="/get">
           <input name="text" />
           <input type="submit" value="send" />
         </form>
@@ -104,7 +104,7 @@ this becomes
 
     <html>
       <body>
-        <form action="/get">
+        <form method="post" action="/get">
         <input type="hidden" name="csrf_token" value="zxjkzX9RnCYwlloVtOVGCfbwjrwWZgWr" />
           <input name="text" />
           <input type="submit" value="send" />
