@@ -1,7 +1,8 @@
 package t::CSRFDefender::Base;
 use strict;
 use warnings;
-use Test::More;
+
+use Test::More tests => 15;
 
 use Mojolicious::Lite;
 use Test::Mojo;
@@ -32,8 +33,6 @@ $t->post_ok('/post')->status_is(403)->content_like(qr{forbidden});
 # can access if exists csrf_token session and parameter
 $t->post_form_ok('/post' => {csrf_token => $token_param})
   ->status_is(200);
-
-1;
 
 __DATA__;
 
