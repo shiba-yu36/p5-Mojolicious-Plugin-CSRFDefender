@@ -1,0 +1,17 @@
+~$
+\.bak$
+.git/
+blib/
+pm_to_blib
+^\.prove$
+^ignore\.txt$
+^Makefile$
+^MANIFEST\.
+\.tar\.gz
+\.lwpcookies
+cover_db
+Mojolicious-Plugin-CSRFDefender-
+\.shipit.*
+^\.#
+^\.prove
+^\.gitignore$
