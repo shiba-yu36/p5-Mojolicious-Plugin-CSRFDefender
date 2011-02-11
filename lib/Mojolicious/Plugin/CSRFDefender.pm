@@ -26,7 +26,7 @@ sub register {
         my ($c) = @_;
         my $token = $self->get_csrf_token($c);
         my $body = $c->res->body;
-        $body =~ s{(<form\s*.*method="POST".*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
+        $body =~ s{(<form\s*[^>]*method="POST".*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
         $c->res->body($body);
     });
 
