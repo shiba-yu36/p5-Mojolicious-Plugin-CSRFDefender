@@ -1,4 +1,4 @@
-package t::CSRFDefender::Base;
+package t::CSRFDefender::MultipleForms;
 use strict;
 use warnings;
 

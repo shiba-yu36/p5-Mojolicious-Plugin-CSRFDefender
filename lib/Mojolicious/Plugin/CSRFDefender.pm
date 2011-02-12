@@ -16,7 +16,7 @@ sub register {
     # input check
     $app->hook(after_static_dispatch => sub {
         my ($c) = @_;
-        unless ($self->validate_csrf($c)) {
+        unless ($self->_validate_csrf($c)) {
             $c->render(status => '403', text => 'forbidden');
         };
     });
@@ -24,16 +24,16 @@ sub register {
     # output filter
     $app->hook(after_dispatch => sub {
         my ($c) = @_;
-        my $token = $self->get_csrf_token($c);
+        my $token = $self->_get_csrf_token($c);
         my $body = $c->res->body;
-        $body =~ s{(<form\s*[^>]*method="POST".*?>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
+        $body =~ s{(<form\s*[^>]*method="POST"[^>]*>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
         $c->res->body($body);
     });
 
     return $self;
 }
 
-sub validate_csrf {
+sub _validate_csrf {
     my ($self, $c) = @_;
 
     if ($c->req->method eq 'POST') {
@@ -47,7 +47,7 @@ sub validate_csrf {
     return 1;
 }
 
-sub get_csrf_token {
+sub _get_csrf_token {
     my ($self, $c) = @_;
 
     my $token = $c->session('csrf_token');
