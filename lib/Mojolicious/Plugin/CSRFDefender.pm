@@ -6,18 +6,40 @@ use Carp;
 
 use version; our $VERSION = qv('0.0.1');
 
-use base qw(Mojolicious::Plugin);
+use base qw(Mojolicious::Plugin Class::Accessor::Fast);
+__PACKAGE__->mk_accessors(qw(
+    parameter_name
+    session_key
+    token_length
+    error_status
+    error_content
+    error_template
+));
 
 use String::Random;
 
 sub register {
     my ($self, $app, $conf) = @_;
 
+    # Plugin config
+    $conf ||= {};
+
+    # setting
+    $self->parameter_name($conf->{parameter_name} || 'csrftoken');
+    $self->session_key($conf->{session_key} || 'csrftoken');
+    $self->token_length($conf->{token_length} || 32);
+    $self->error_status($conf->{error_status} || 403);
+    $self->error_content($conf->{error_content} || 'Forbidden');
+    $self->error_template($conf->{error_template} || '');
+
     # input check
     $app->hook(after_static_dispatch => sub {
         my ($c) = @_;
         unless ($self->_validate_csrf($c)) {
-            $c->render(status => '403', text => 'forbidden');
+            $c->render(
+                status => $self->{error_status},
+                text   => $self->{error_content},
+            );
         };
     });
 
@@ -25,8 +47,9 @@ sub register {
     $app->hook(after_dispatch => sub {
         my ($c) = @_;
         my $token = $self->_get_csrf_token($c);
+        my $p_name = $self->parameter_name;
         my $body = $c->res->body;
-        $body =~ s{(<form\s*[^>]*method="POST"[^>]*>)}{$1\n<input type="hidden" name="csrf_token" value="$token" />}isg;
+        $body =~ s{(<form\s*[^>]*method="POST"[^>]*>)}{$1\n<input type="hidden" name="$p_name" value="$token" />}isg;
         $c->res->body($body);
     });
 
@@ -37,8 +60,10 @@ sub _validate_csrf {
     my ($self, $c) = @_;
 
     if ($c->req->method eq 'POST') {
-        my $request_token = $c->req->param('csrf_token');
-        my $session_token = $c->session('csrf_token');
+        my $p_name = $self->parameter_name;
+        my $s_name = $self->session_key;
+        my $request_token = $c->req->param($p_name);
+        my $session_token = $c->session($s_name);
         return 0 unless $request_token;
         return 0 unless $session_token;
         return 0 unless $request_token eq $session_token;
@@ -50,11 +75,13 @@ sub _validate_csrf {
 sub _get_csrf_token {
     my ($self, $c) = @_;
 
-    my $token = $c->session('csrf_token');
+    my $key    = $self->session_key;
+    my $token  = $c->session($key);
+    my $length = $self->token_length;
     return $token if $token;
 
-    $token = String::Random::random_regex('[a-zA-Z0-9_]{32}');
-    $c->session('csrf_token' => $token);
+    $token = String::Random::random_regex("[a-zA-Z0-9_]{$length}");
+    $c->session($key => $token);
     return $token;
 }
 
@@ -115,6 +142,36 @@ this becomes
 =head2 input check
 
 For every POST requests, this module checks input parameters contain the collect token parameter. If not found, throws 403 Forbidden.
+
+=head1 OPTIONS
+
+=over 4
+
+=item parameter_name(default:"csrftoken")
+
+Name of the input tag for the token.
+
+=item session_key(default:"csrftoken")
+
+Name of the session key for the token.
+
+=item token_length(default:32)
+
+Length of the token string.
+
+=item error_status(default:403)
+
+Status code when CSRF is detected.
+
+=item error_content(default:"Forbidden")
+
+Content body when CSRF is detected.
+
+=item error_template
+
+Return content of the specified file as content body when CSRF is detected.  Specify the file path from the application home directory.
+
+=back
 
 =head1 METHODS
 
