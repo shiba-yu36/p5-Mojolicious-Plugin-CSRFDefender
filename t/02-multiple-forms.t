@@ -16,7 +16,7 @@ plugin 'Mojolicious::Plugin::CSRFDefender';
 
 # forbidden unless session
 my $t = Test::Mojo->new;
-$t->post_ok('/post')->status_is(403)->content_like(qr{Forbidden});
+$t->post_ok('/post')->status_is(403)->content_like(qr{^Forbidden$});
 
 # no csrf_token if form method is get
 $t->get_ok('/get')->status_is(200)->content_like(qr{(?!csrftoken)});
@@ -29,7 +29,7 @@ my ($token_param) = $body =~ /name="csrftoken" value="(.*?)"/;
 like $token_param, qr{^[a-zA-Z0-9_]{32}$}, 'valid token';
 
 # forbidden unless csrf_token parameter
-$t->post_ok('/post')->status_is(403)->content_like(qr{Forbidden});
+$t->post_ok('/post')->status_is(403)->content_like(qr{^Forbidden$});
 
 # can access if exists csrf_token session and parameter
 $t->post_form_ok('/post' => {csrftoken => $token_param})

@@ -9,6 +9,7 @@ all_from 'lib/Mojolicious/Plugin/CSRFDefender.pm';
 requires 'Mojolicious';
 requires 'String::Random';
 requires 'Class::Accessor::Fast';
+requires 'Path::Class';
 
 test_requires 'Test::More';
 test_requires 'Test::Class';

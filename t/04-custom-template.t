@@ -1,4 +1,4 @@
-package t::CSRFDefender::Base;
+package t::CSRFDefender::CustomTemplate;
 use strict;
 use warnings;
 
@@ -12,11 +12,13 @@ get '/get' => 'get';
 any [qw(get post)] => '/post' => 'post';
 
 # load plugin
-plugin 'Mojolicious::Plugin::CSRFDefender';
+plugin 'Mojolicious::Plugin::CSRFDefender' => {
+    error_template => '403.html',
+};
 
 # forbidden unless session
 my $t = Test::Mojo->new;
-$t->post_ok('/post')->status_is(403)->content_like(qr{^Forbidden$});
+$t->post_ok('/post')->status_is(403)->content_like(qr{^403 Forbidden$});
 
 # no csrf_token if form method is get
 $t->get_ok('/get')->status_is(200)->content_like(qr{(?!csrftoken)});
@@ -28,10 +30,10 @@ my ($token_param) = $body =~ /name="csrftoken" value="(.*?)"/;
 like $token_param, qr{^[a-zA-Z0-9_]{32}$}, 'valid token';
 
 # forbidden unless csrf_token parameter
-$t->post_ok('/post')->status_is(403)->content_like(qr{^Forbidden$});
+$t->post_ok('/post')->status_is(403)->content_like(qr{^403 Forbidden$});
 
 # can access if exists csrf_token session and parameter
-$t->post_form_ok('/post' => {csrftoken => $token_param})
+$t->post_form_ok('/post' => {'csrftoken' => $token_param})
   ->status_is(200);
 
 __DATA__;

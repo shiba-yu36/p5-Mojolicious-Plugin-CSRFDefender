@@ -17,6 +17,7 @@ __PACKAGE__->mk_accessors(qw(
 ));
 
 use String::Random;
+use Path::Class;
 
 sub register {
     my ($self, $app, $conf) = @_;
@@ -30,15 +31,26 @@ sub register {
     $self->token_length($conf->{token_length} || 32);
     $self->error_status($conf->{error_status} || 403);
     $self->error_content($conf->{error_content} || 'Forbidden');
-    $self->error_template($conf->{error_template} || '');
+    if ($conf->{error_template}) {
+        my $file = $app->home->rel_file($conf->{error_template});
+        $self->error_template($file);
+    }
 
     # input check
     $app->hook(after_static_dispatch => sub {
         my ($c) = @_;
         unless ($self->_validate_csrf($c)) {
+            my $content;
+            if ($self->error_template) {
+                my $file = file($self->error_template);
+                $content = $file->slurp;
+            }
+            else {
+                $content = $self->{error_content},
+            }
             $c->render(
                 status => $self->{error_status},
-                text   => $self->{error_content},
+                text   => $content,
             );
         };
     });
