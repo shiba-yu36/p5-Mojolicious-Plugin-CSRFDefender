@@ -1,4 +1,7 @@
 Revision history for Mojolicious::Plugin::CSRFDefender
 
+0.0.2    Sub Feb 13 23:50:00 2011
+        - add custom options
+
 0.0.1    Tue Feb  8 23:10:25 2011
         - Initial release
