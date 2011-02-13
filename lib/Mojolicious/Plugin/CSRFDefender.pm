@@ -157,6 +157,14 @@ For every POST requests, this module checks input parameters contain the collect
 
 =head1 OPTIONS
 
+    plugin 'Mojolicious::Plugin::CSRFDefender' => {
+        parameter_name => 'param-csrftoken',
+        session_key    => 'session-csrftoken',
+        token_length   => 40,
+        error_status   => 400,
+        error_template => 'public/400.html',
+    };
+
 =over 4
 
 =item parameter_name(default:"csrftoken")
