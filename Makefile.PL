@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use inc::Module::Install;
+use Module::Install::AuthorTests;
 
 name     'Mojolicious-Plugin-CSRFDefender';
 author   'Yuki Shibazaki <shibayu36@gmail.com>';
@@ -15,6 +16,8 @@ test_requires 'Test::More';
 test_requires 'Test::Class';
 test_requires 'Mojolicious::Lite';
 test_requires 'Test::Mojo';
+
+recursive_author_tests('xt');
 
 auto_install;
 WriteAll;
