@@ -1,9 +1,7 @@
-#!perl
+use strict;
+use Test::More;
 
-if (!require Test::Perl::Critic) {
-    Test::More::plan(
-        skip_all => "Test::Perl::Critic required for testing PBP compliance"
-    );
-}
+eval { require Test::Perl::Critic; Test::Perl::Critic->import(-profile => "t/perlcriticrc") };
+plan skip_all => "Test::Perl::Critic is not installed." if $@;
 
-Test::Perl::Critic::all_critic_ok();
+all_critic_ok("lib");
