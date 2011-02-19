@@ -14,6 +14,7 @@ __PACKAGE__->mk_accessors(qw(
     error_status
     error_content
     error_template
+    onetime
 ));
 
 use String::Random;
@@ -31,6 +32,7 @@ sub register {
     $self->token_length($conf->{token_length} || 32);
     $self->error_status($conf->{error_status} || 403);
     $self->error_content($conf->{error_content} || 'Forbidden');
+    $self->onetime($conf->{onetime} || 0);
     if ($conf->{error_template}) {
         my $file = $app->home->rel_file($conf->{error_template});
         $self->error_template($file);
@@ -71,14 +73,20 @@ sub register {
 sub _validate_csrf {
     my ($self, $c) = @_;
 
+    my $p_name = $self->parameter_name;
+    my $s_name = $self->session_key;
+    my $request_token = $c->req->param($p_name);
+    my $session_token = $c->session($s_name);
+
     if ($c->req->method eq 'POST') {
-        my $p_name = $self->parameter_name;
-        my $s_name = $self->session_key;
-        my $request_token = $c->req->param($p_name);
-        my $session_token = $c->session($s_name);
         return 0 unless $request_token;
         return 0 unless $session_token;
         return 0 unless $request_token eq $session_token;
+    }
+
+    # onetime
+    if ($c->req->method eq 'POST' && $self->onetime) {
+        $c->session($self->{session_key} => '');
     }
 
     return 1;
