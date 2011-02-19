@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.0.4';
+our $VERSION = '0.0.5';
 
 use base qw(Mojolicious::Plugin Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw(
@@ -116,7 +116,7 @@ Mojolicious::Plugin::CSRFDefender - Defend CSRF automatically in Mojolicious App
 
 =head1 VERSION
 
-This document describes Mojolicious::Plugin::CSRFDefender version 0.0.4
+This document describes Mojolicious::Plugin::CSRFDefender version 0.0.5
 
 
 =head1 SYNOPSIS
@@ -198,6 +198,10 @@ Content body when CSRF is detected.
 =item error_template
 
 Return content of the specified file as content body when CSRF is detected.  Specify the file path from the application home directory.
+
+=item onetime(default:0)
+
+If specified with 1,  this plugin uses onetime token, that is, whenever client sent collect token and this middleware detect that, token string is regenerated.
 
 =back
 

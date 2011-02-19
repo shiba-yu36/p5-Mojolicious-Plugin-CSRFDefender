@@ -1,5 +1,8 @@
 Revision history for Mojolicious::Plugin::CSRFDefender
 
+0.0.5    Sat Feb 19 22:00:00 2011
+        - add onetime token option
+
 0.0.4    Fri Feb 18 02:00:00 2011
         - move pod and perlcritic test to xt
 
