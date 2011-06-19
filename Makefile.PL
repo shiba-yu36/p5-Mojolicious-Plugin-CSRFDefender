@@ -7,7 +7,7 @@ name     'Mojolicious-Plugin-CSRFDefender';
 author   'Yuki Shibazaki <shibayu36@gmail.com>';
 all_from 'lib/Mojolicious/Plugin/CSRFDefender.pm';
 
-requires 'Mojolicious';
+requires 'Mojolicious' => '1.43';
 requires 'String::Random';
 requires 'Class::Accessor::Fast';
 requires 'Path::Class';

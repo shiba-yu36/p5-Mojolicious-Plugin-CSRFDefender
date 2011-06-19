@@ -1,5 +1,8 @@
 Revision history for Mojolicious::Plugin::CSRFDefender
 
+0.0.6    Sun Jun 19 12:22:06 2011
+        - add dependency on Mojolicious 1.43
+
 0.0.5    Sat Feb 19 22:00:00 2011
         - add onetime token option
 
